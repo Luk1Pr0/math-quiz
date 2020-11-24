@@ -30,13 +30,53 @@ let equationObject = {};
 const wrongFormat = [];
 
 // Time
+let timer;
+let timePlayed = 0;
+let baseTime = 0;
+let penaltyTime = 0;
+let finalTime = 0;
+let finalTimeDisplay = "0.0s";
 
 // Scroll
 let valueY = 0;
 
+// Stop timer and process results and go to the score page
+function checkTime() {
+  if (playerGuessArray.length == questionAmount) {
+    console.log("player Guess array", playerGuessArray);
+    clearInterval(timer);
+    // Loop through and check for wrong guesses + add penalty time
+    equationsArray.forEach((equation, i) => {
+      if (equation.evaluated === playerGuessArray[i]) {
+        // Correct guess, no penalty
+      } else {
+        // Incorrect guess, add 0.5s penalty
+        penaltyTime += 0.5;
+      }
+    });
+    finalTime = timePlayed + penaltyTime;
+    console.log("time played", timePlayed, "penalty", penaltyTime, "final:", finalTime);
+  }
+} 
+
+// Add a tenth of a second to timePlayed
+function addTime() {
+  timePlayed += 0.1;
+  checkTime();
+}
+
+// Start timer when game page is clicked
+function startTimer() {
+  // Reset times
+  timePlayed = 0;
+  penaltyTime = 0;
+  finalTime = 0;
+  timer = setInterval(addTime, 100);
+  gamePage.removeEventListener("click", startTimer);
+}
+
 // Scroll and store user selectin in the playerGuess array
 function select(guessedTrue) {
-  console.log("player Guess array", playerGuessArray);
   // Scroll 80px each time the button is pressed
   valueY += 80;
   itemContainer.scroll(0, valueY);
@@ -184,3 +224,4 @@ startForm.addEventListener("click", () => {
 });
 
 startForm.addEventListener("submit", selectQuestionAmount);
+gamePage.addEventListener("click", startTimer);
