@@ -30,6 +30,7 @@ let equationObject = {};
 const wrongFormat = [];
 
 // Time
+let timedown;
 let timer;
 let timePlayed = 0;
 let baseTime = 0;
@@ -39,6 +40,39 @@ let finalTimeDisplay = "0.0s";
 
 // Scroll
 let valueY = 0;
+
+function playAgain() {
+  gamePage.addEventListener("click", startTimer);
+  scorePage.hidden = true;
+  splashPage.hidden = false;
+  equationsArray = [];
+  playerGuessArray = [];
+  playAgainBtn.hidden = true;
+  valueY = 0;
+}
+
+// Show score page after finishing game page
+function showScorePage() {
+  // show play again button after 1 second
+  setTimeout(() => {
+    playAgainBtn.hidden = false;
+  }, 2000);
+  gamePage.hidden = true;
+  scorePage.hidden = false;
+}
+
+// Format the time and display it in DOM
+function scoresToDOM() {
+  finalTimeDisplay = finalTime.toFixed(1);
+  baseTime = timePlayed.toFixed(1);
+  penaltyTime = penaltyTime.toFixed(1);
+  baseTimeEl.textContent = `Base time: ${baseTime}s`;
+  penaltyTimeEl.textContent = `Penalty: +${penaltyTime}s`;
+  finalTimeEl.textContent = `${finalTimeDisplay}s`;
+  // Scroll to top of the item container and go to score page
+  itemContainer.scrollTo({ top: 0, behaviour: "instant" }) 
+  showScorePage();
+}
 
 // Stop timer and process results and go to the score page
 function checkTime() {
@@ -56,11 +90,13 @@ function checkTime() {
     });
     finalTime = timePlayed + penaltyTime;
     console.log("time played", timePlayed, "penalty", penaltyTime, "final:", finalTime);
+    scoresToDOM();
   }
 } 
 
 // Add a tenth of a second to timePlayed
 function addTime() {
+  console.log("time played", timePlayed);
   timePlayed += 0.1;
   checkTime();
 }
@@ -88,6 +124,7 @@ function select(guessedTrue) {
 function showGamePage() {
   gamePage.hidden = false;
   countdownPage.hidden = true;
+  clearInterval(timeDown);
 }
 
 // Get random number up to a max number
@@ -155,7 +192,6 @@ function populateGamePage() {
   selectedItem.classList.add('selected-item');
   // Append
   itemContainer.append(topSpacer, selectedItem);
-
   // Create Equations, Build Elements in DOM
   createEquations();
   equationsToDOM();
@@ -169,14 +205,18 @@ function populateGamePage() {
 function countdownStart() {
   countdown.textContent = "3";
   let seconds = 2;
-  setInterval(() => {
+  timeDown = setInterval(() => {
     // Only countdown if seconds is equal to or larger than 0
     if (seconds >= 0) {
       countdown.textContent = seconds--;
+      console.log(seconds);
     }
     // Once seconds reach -1 then change the 0 to Go!
     if (seconds === -1) {
       countdown.textContent = "Go!";
+      seconds = 2;
+      // console.log("seconds", seconds);
+      console.log(seconds);
     }
   }, 1000);
 }
